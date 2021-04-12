@@ -1,0 +1,114 @@
+* {
+  margin: 0;
+}
+
+.app {
+  background-color: #4C4D66;
+  height: 100vh;
+}
+
+.app__image {
+  width: 33%;
+  min-width: 400px; 
+  margin: auto;
+  padding: 30px;
+}
+
+.image {
+  width: 100%;
+  transition-duration: 0.5s;
+}
+.image:hover {
+  padding-top: 10px;
+}
+
+.text {
+  color: whitesmoke;
+  text-align: center;
+  padding-bottom: 50px;
+  font-size: 19px;
+}
+
+.text__modal {
+  color: #4C4D66;
+  text-align: center;
+  padding-bottom: 20px;
+  font-size: 16px;
+}
+
+.body__button {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  width: 25%;
+  min-width: 250px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 20px;
+  margin-top: 50px;
+}
+
+.button {
+  background-color: #7674A6;
+  border: none;
+  color: whitesmoke;
+  padding: 15px;
+  text-align: center;
+  text-decoration: none;
+  font-size: 16px;
+  border-radius: 30px;
+  margin-bottom: 10px;
+  transition-duration: 0.5s;
+}
+.button:hover {
+  background-color: #99A0CC;
+  color: white;
+}
+
+.logout__button {
+  background-color: transparent;
+  border: 2px solid #99A0CC;
+  color:whitesmoke;
+  padding: 15px;
+  text-align: center;
+  text-decoration: none;
+  font-size: 16px;
+  border-radius: 30px;
+  margin-top: 50px;
+  margin-bottom: 10px;
+  transition-duration: 0.5s;
+}
+.logout__button:hover {
+  background-color: #99A0CC;
+  color: white;
+}
+
+.app__form {
+  display: flex;
+  flex-direction: column;
+}
+
+.icon {
+  object-fit: contain;
+}
+
+.button__modal {
+  width: 50%;
+  margin-left: auto;
+  margin-right:auto;
+  background-color: transparent;
+  border: 2px solid #99A0CC;
+  color:#99A0CC;
+  padding: 15px;
+  text-align: center;
+  text-decoration: none;
+  font-size: 16px;
+  border-radius: 30px;
+  margin-top: 25px;
+  margin-bottom: 0px;
+  transition-duration: 0.5s;
+}
+.button__modal:hover {
+  background-color: #99A0CC;
+  color: white;
+}

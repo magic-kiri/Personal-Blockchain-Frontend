@@ -43,6 +43,8 @@ function App() {
   const [openShowBlockchain, setOpenShowBlockchain] = useState(false);
   const [openHistory, setOpenHistory] = useState(false);
   const [openCredentials, setOpenCredential] = useState(false);
+  const [openConfirmationSignIn, setOpenConfirmationSignIn] = useState(false);
+  const [openConfirmationSignUp, setOpenConfirmationSignUp] = useState(false);
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -70,7 +72,7 @@ function App() {
     console.log(username);
     console.log(password);
 
-    setOpenSignUp(false);
+    setOpenConfirmationSignUp(false);
   }
 
   const signIn = (event) => {
@@ -80,7 +82,51 @@ function App() {
     console.log(username);
     console.log(password);
 
+    setOpenConfirmationSignIn(false);
+  }
+
+  const signUpConfirmation = (event) => {
+    event.preventDefault();
+
+    //console.log(username);
+    //console.log(password);
+
+    if (username !== "" && password !== "") {
+      const packet = { username: username, password: password };
+
+      const requestOptions = {
+        //mode: 'no-cors',
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(packet)
+      };
+      fetch('http://localhost:4000', requestOptions)
+        .then(response => response.json())
+        .then(data => console.log(data));
+
+      // fetch('http://localhost:4000/sign_up', {
+      //   method: 'post',
+      //   body: JSON.stringify(body),
+      //   headers: { 'Content-Type': 'application/json' },
+      // });
+      // .then(res => res.json())
+      // .then(json => console.log(json))
+      // .catch(err => console.log(err));
+
+      setOpenSignUp(false);
+      setOpenConfirmationSignUp(true);
+    }
+
+  }
+
+  const signInConfirmation = (event) => {
+    event.preventDefault();
+
+    console.log(username);
+    console.log(password);
+
     setOpenSignIn(false);
+    setOpenConfirmationSignIn(true);
   }
 
   const logOut = (event) => {
@@ -153,7 +199,7 @@ function App() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-            <button className="button__modal" type="submit" onClick={signUp}>Sign Up</button>
+            <button className="button__modal" type="submit" onClick={signUpConfirmation}>Sign Up</button>
           </form>
         </div>
       </Modal>
@@ -187,8 +233,42 @@ function App() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-            <button className="button__modal" type="submit" onClick={signIn}>Sign In</button>
+            <button className="button__modal" type="submit" onClick={signInConfirmation}>Sign In</button>
           </form>
+        </div>
+      </Modal>
+
+      {/* modal for signin confirmation */}
+
+      <Modal
+        open={openConfirmationSignIn}
+        onClose={() => setOpenConfirmationSignIn(false)}
+      >
+        <div style={modalStyle} className={classes.paper}>
+          <div className="app__form">
+            <p className="text__modal">
+              Your'e In!
+            </p>
+            <button className="button__modal" type="submit" onClick={signIn}>Great!</button>
+          </div>
+
+        </div>
+      </Modal>
+
+      {/* modal for signup confirmation */}
+
+      <Modal
+        open={openConfirmationSignUp}
+        onClose={() => setOpenConfirmationSignUp(false)}
+      >
+        <div style={modalStyle} className={classes.paper}>
+          <div className="app__form">
+            <p className="text__modal">
+              Your'e In!
+            </p>
+            <button className="button__modal" type="submit" onClick={signUp}>Great!</button>
+          </div>
+
         </div>
       </Modal>
 

@@ -5,6 +5,8 @@ import icon from './icon.png';
 import { Button, Input } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import Modal from '@material-ui/core/Modal';
+import { getDefaultNormalizer } from '@testing-library/dom';
+const fetch = require('node-fetch');
 
 //modal style imported from materialui
 
@@ -30,6 +32,27 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+
+
+async function postData(url, packet) {
+  try {
+    let res = await fetch('http://localhost:4000/' + url, {
+      method: 'post',
+      body: JSON.stringify(packet),
+      headers: { 'Content-Type': 'application/json' }
+    })
+
+    return { statusCode: res.status, body: await res.json() };
+  } catch (err) {
+    // console.log(err) 
+  }
+}
+
+async function getData(url) {
+  let res = await fetch('http://localhost:4000/' + url);
+  return { statusCode: res.status, body: await res.json() };
+}
+
 //main app function
 
 function App() {
@@ -45,12 +68,14 @@ function App() {
   const [openCredentials, setOpenCredential] = useState(false);
   const [openConfirmationSignIn, setOpenConfirmationSignIn] = useState(false);
   const [openConfirmationSignUp, setOpenConfirmationSignUp] = useState(false);
+  const [openTransactionSuccess, setOpenTransactionSuccess] = useState(false);
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [sender, setSender] = useState("");
   const [reciever, setReciever] = useState("");
   const [info, setInfo] = useState("");
+  const [confirmation, setConfirmation] = useState(null);
 
   const [user, setUser] = useState(null);
 
@@ -65,12 +90,12 @@ function App() {
 
   }, [user, username]);
 
+
+
   const signUp = (event) => {
     event.preventDefault();
 
     setUser("user");
-    console.log(username);
-    console.log(password);
 
     setOpenConfirmationSignUp(false);
   }
@@ -79,54 +104,44 @@ function App() {
     event.preventDefault();
 
     setUser("user");
-    console.log(username);
-    console.log(password);
 
     setOpenConfirmationSignIn(false);
   }
 
-  const signUpConfirmation = (event) => {
+  const signUpConfirmation = async (event) => {
     event.preventDefault();
-
-    //console.log(username);
-    //console.log(password);
 
     if (username !== "" && password !== "") {
       const packet = { username: username, password: password };
+      let res = await postData('sign_up', packet);
 
-      const requestOptions = {
-        //mode: 'no-cors',
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(packet)
-      };
-      fetch('http://localhost:4000', requestOptions)
-        .then(response => response.json())
-        .then(data => console.log(data));
+      console.log(res.statusCode);
 
-      // fetch('http://localhost:4000/sign_up', {
-      //   method: 'post',
-      //   body: JSON.stringify(body),
-      //   headers: { 'Content-Type': 'application/json' },
-      // });
-      // .then(res => res.json())
-      // .then(json => console.log(json))
-      // .catch(err => console.log(err));
+      setConfirmation(res.statusCode);
+
+      console.log(confirmation);
 
       setOpenSignUp(false);
       setOpenConfirmationSignUp(true);
     }
-
   }
 
-  const signInConfirmation = (event) => {
+  const signInConfirmation = async (event) => {
     event.preventDefault();
 
-    console.log(username);
-    console.log(password);
+    if (username !== "" && password !== "") {
+      const packet = { username: username, password: password };
+      let res = await postData('sign_in', packet);
 
-    setOpenSignIn(false);
-    setOpenConfirmationSignIn(true);
+      console.log(res.statusCode);
+
+      setConfirmation(res.statusCode);
+
+      console.log(confirmation);
+
+      setOpenSignIn(false);
+      setOpenConfirmationSignIn(true);
+    }
   }
 
   const logOut = (event) => {
@@ -138,15 +153,25 @@ function App() {
   const transaction = (event) => {
     event.preventDefault();
 
-    console.log(sender);
-    console.log(reciever);
-    console.log(info);
-
     setSender(null);
     setReciever(null);
     setInfo(null);
 
-    setOpenTransaction(false);
+    setOpenTransactionSuccess(false);
+  }
+
+  const transactionSuccess = async (event) => {
+    event.preventDefault();
+
+    if (sender !== "" && reciever !== "" && info !== "") {
+      const packet = { sender: sender, reciever: reciever, info: info };
+      let res = await postData('add_transaction', packet);
+
+      setConfirmation(res.statusCode);
+
+      setOpenTransaction(false);
+      setOpenTransactionSuccess(true);
+    }
   }
 
   const showBlockchain = (event) => {
@@ -238,23 +263,6 @@ function App() {
         </div>
       </Modal>
 
-      {/* modal for signin confirmation */}
-
-      <Modal
-        open={openConfirmationSignIn}
-        onClose={() => setOpenConfirmationSignIn(false)}
-      >
-        <div style={modalStyle} className={classes.paper}>
-          <div className="app__form">
-            <p className="text__modal">
-              Your'e In!
-            </p>
-            <button className="button__modal" type="submit" onClick={signIn}>Great!</button>
-          </div>
-
-        </div>
-      </Modal>
-
       {/* modal for signup confirmation */}
 
       <Modal
@@ -263,12 +271,51 @@ function App() {
       >
         <div style={modalStyle} className={classes.paper}>
           <div className="app__form">
-            <p className="text__modal">
-              Your'e In!
-            </p>
-            <button className="button__modal" type="submit" onClick={signUp}>Great!</button>
-          </div>
+            {confirmation === 200
+              ? <div className="app__form">
+                <p className="text__modal">
+                  You're signed up! {confirmation}
+                </p>
+                <button className="button__modal" type="submit" onClick={signUp}>Great!</button>
+              </div>
+              : <div className="app__form">
+                <p className="text__modal">
+                  Error {confirmation}.
+                  This username is already taken. Try a new one.
+                </p>
+                <button className="button__modal" type="submit" onClick={() => setOpenConfirmationSignUp(false)} >Sorry!</button>
+              </div>
+            }
 
+          </div>
+        </div>
+      </Modal>
+
+      {/* modal for signin confirmation */}
+
+      <Modal
+        open={openConfirmationSignIn}
+        onClose={() => setOpenConfirmationSignIn(false)}
+      >
+        <div style={modalStyle} className={classes.paper}>
+          <div className="app__form">
+            {confirmation === 200
+              ? <div className="app__form">
+                <p className="text__modal">
+                  You're logged in!
+                </p>
+                <button className="button__modal" type="submit" onClick={signIn}>Great!</button>
+              </div>
+              : <div className="app__form">
+                <p className="text__modal">
+                  Error {confirmation}.
+                  Try again.
+                </p>
+                <button className="button__modal" type="submit" onClick={() => setOpenConfirmationSignIn(false)} >Oops!</button>
+              </div>
+            }
+
+          </div>
         </div>
       </Modal>
 
@@ -308,8 +355,35 @@ function App() {
               onChange={(e) => setInfo(e.target.value)}
             />
 
-            <button className="button__modal" type="submit" onClick={transaction}>Add Transaction</button>
+            <button className="button__modal" type="submit" onClick={transactionSuccess}>Add Transaction</button>
           </form>
+        </div>
+      </Modal>
+
+      {/* modal for transaction success */}
+
+      <Modal
+        open={openTransactionSuccess}
+        onClose={() => setOpenTransactionSuccess(false)}
+      >
+        <div style={modalStyle} className={classes.paper}>
+          <div className="app__form">
+            {confirmation === 200
+              ? <div className="app__form">
+                <p className="text__modal">
+                  Successfully added to transaction pool.
+                </p>
+                <button className="button__modal" type="submit" onClick={transaction}>Success!</button>
+              </div>
+              : <div className="app__form">
+                <p className="text__modal">
+                  Error {confirmation}.
+                  Try again.
+                </p>
+                <button className="button__modal" type="submit" onClick={() => setOpenTransactionSuccess(false)} >Sorry!</button>
+              </div>
+            }
+          </div>
         </div>
       </Modal>
 

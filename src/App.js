@@ -41,7 +41,7 @@ async function postData(url, packet) {
       body: JSON.stringify(packet),
       headers: { 'Content-Type': 'application/json' }
     })
-
+    //console.log(res.json());
     return { statusCode: res.status, body: await res.json() };
   } catch (err) {
     // console.log(err) 
@@ -65,7 +65,7 @@ function App() {
   const [openTransaction, setOpenTransaction] = useState(false);
   const [openShowBlockchain, setOpenShowBlockchain] = useState(false);
   const [openHistory, setOpenHistory] = useState(false);
-  const [openCredentials, setOpenCredential] = useState(false);
+  const [openCredential, setOpenCredential] = useState(false);
   const [openConfirmationSignIn, setOpenConfirmationSignIn] = useState(false);
   const [openConfirmationSignUp, setOpenConfirmationSignUp] = useState(false);
   const [openTransactionSuccess, setOpenTransactionSuccess] = useState(false);
@@ -76,6 +76,8 @@ function App() {
   const [reciever, setReciever] = useState("");
   const [info, setInfo] = useState("");
   const [confirmation, setConfirmation] = useState(null);
+  const [data, setData] = useState(null);
+  const [userCred, setUserCred] = useState(null);
 
   const [user, setUser] = useState(null);
 
@@ -106,6 +108,7 @@ function App() {
     setUser("user");
 
     setOpenConfirmationSignIn(false);
+
   }
 
   const signUpConfirmation = async (event) => {
@@ -118,8 +121,7 @@ function App() {
       console.log(res.statusCode);
 
       setConfirmation(res.statusCode);
-
-      console.log(confirmation);
+      setData(res.body);
 
       setOpenSignUp(false);
       setOpenConfirmationSignUp(true);
@@ -133,11 +135,14 @@ function App() {
       const packet = { username: username, password: password };
       let res = await postData('sign_in', packet);
 
-      console.log(res.statusCode);
+      console.log(res.body);
 
       setConfirmation(res.statusCode);
+      setData(res.body);
 
-      console.log(confirmation);
+      // console.log(confirmation);
+      // console.log(data);
+      // console.log(userCred);
 
       setOpenSignIn(false);
       setOpenConfirmationSignIn(true);
@@ -174,22 +179,37 @@ function App() {
     }
   }
 
-  const showBlockchain = (event) => {
+  const showBlockchain = async (event) => {
     event.preventDefault();
 
-    setOpenShowBlockchain(null);
+    let blockchain = await getData('blockchain');
+
+    console.log(blockchain.body);
+
+    setConfirmation(blockchain.statusCode);
+    setData(JSON.stringify(blockchain.body));
+
+    //console.log(confirmation);
+    //console.log(data);
+
+    setOpenShowBlockchain(true);
   }
 
   const history = (event) => {
     event.preventDefault();
 
-    setOpenHistory(null);
+    setOpenHistory(true);
   }
 
-  const userCredential = (event) => {
+  const userCredential = async (event) => {
     event.preventDefault();
 
-    setOpenCredential(null);
+    let cred = await postData('get_keys', {password: password} );
+    setUserCred(JSON.stringify(cred.body));
+    console.log(cred.body);
+    console.log(userCred);
+
+    setOpenCredential(true);
   }
 
   return (
@@ -303,6 +323,7 @@ function App() {
               ? <div className="app__form">
                 <p className="text__modal">
                   You're logged in!
+
                 </p>
                 <button className="button__modal" type="submit" onClick={signIn}>Great!</button>
               </div>
@@ -396,9 +417,11 @@ function App() {
         <div style={modalStyle} className={classes.paper}>
           <div className="app__form">
             <p className="text__modal">
-              This is where the Blockchain will be showed after retrieval.
-            </p>
-            <button className="button__modal" type="submit" onClick={showBlockchain}>Ok</button>
+              {confirmation}
+              <br />
+              {data}
+              </p>
+            <button className="button__modal" type="submit" onClick={() => setOpenShowBlockchain(false)}>Ok</button>
           </div>
         </div>
       </Modal>
@@ -412,9 +435,9 @@ function App() {
         <div style={modalStyle} className={classes.paper}>
           <div className="app__form">
             <p className="text__modal">
-              Your transaction history.
+              This feature is currently under development.
             </p>
-            <button className="button__modal" type="submit" onClick={history}>Ok</button>
+            <button className="button__modal" type="submit" onClick={() => setOpenHistory(false)}>Ok</button>
           </div>
         </div>
       </Modal>
@@ -422,22 +445,23 @@ function App() {
       {/* modal for user credentials */}
 
       <Modal
-        open={openCredentials}
+        open={openCredential}
         onClose={() => setOpenCredential(false)}
       >
         <div style={modalStyle} className={classes.paper}>
           <div className="app__form">
             <p className="text__modal">
               <b>Username</b> : {username}
-            </p>
-            <p className="text__modal">
-              <b>Public Key</b> : Your Public Key
-            </p>
-            <p className="text__modal">
-              <b>Private Key</b> : Your Private Key
+              <br />
+              <b>Password</b> : {password}
+              <br />
+              {confirmation}
+              <br />
+              {userCred}
+
             </p>
 
-            <button className="button__modal" type="submit" onClick={userCredential}>Ok</button>
+            <button className="button__modal" type="submit" onClick={() => setOpenCredential(false)}>Ok</button>
           </div>
         </div>
       </Modal>
@@ -458,15 +482,15 @@ function App() {
             Request a Transaction
           </button>
 
-          <button className="button" onClick={() => setOpenShowBlockchain(true)}>
+          <button className="button" onClick={showBlockchain}>
             Show Blockchain
           </button>
 
-          <button className="button" onClick={() => setOpenHistory(true)}>
+          <button className="button" onClick={history}>
             History
           </button>
 
-          <button className="button" onClick={() => setOpenCredential(true)}>
+          <button className="button" onClick={userCredential}>
             User Credentials
           </button>
 

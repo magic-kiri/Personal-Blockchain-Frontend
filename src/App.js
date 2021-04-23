@@ -24,11 +24,19 @@ function getModalStyle() {
 const useStyles = makeStyles((theme) => ({
   paper: {
     position: 'absolute',
-    width: 400,
+    width: 'auto',
+    minWidth: 400,
+    maxWidth: '50%',
+    height: 'auto',
+    maxHeight: '80%',
     backgroundColor: theme.palette.background.paper,
     // border: '2px solid #000',
     boxShadow: theme.shadows[5],
     padding: theme.spacing(2, 4, 3),
+    top: '10%',
+    left: '10%',
+    overflow: 'scroll',
+    display: 'block'
   },
 }));
 
@@ -75,9 +83,9 @@ function App() {
   const [sender, setSender] = useState("");
   const [reciever, setReciever] = useState("");
   const [info, setInfo] = useState("");
-  const [confirmation, setConfirmation] = useState(null);
-  const [data, setData] = useState(null);
-  const [userCred, setUserCred] = useState(null);
+  const [confirmation, setConfirmation] = useState("");
+  const [data, setData] = useState("");
+  const [userCred, setUserCred] = useState("");
 
   const [user, setUser] = useState(null);
 
@@ -135,7 +143,7 @@ function App() {
       const packet = { username: username, password: password };
       let res = await postData('sign_in', packet);
 
-      console.log(res.body);
+      //console.log(res.body);
 
       setConfirmation(res.statusCode);
       setData(res.body);
@@ -187,10 +195,9 @@ function App() {
     console.log(blockchain.body);
 
     setConfirmation(blockchain.statusCode);
-    setData(JSON.stringify(blockchain.body));
 
-    //console.log(confirmation);
-    //console.log(data);
+
+    setData((blockchain.body).map((block) => <p>{JSON.stringify(block, null, "\t")}<br/></p>));
 
     setOpenShowBlockchain(true);
   }
@@ -204,9 +211,9 @@ function App() {
   const userCredential = async (event) => {
     event.preventDefault();
 
-    let cred = await postData('get_keys', {password: password} );
-    setUserCred(JSON.stringify(cred.body));
-    console.log(cred.body);
+    let cred = await postData('get_keys', { password: password });
+    setUserCred(cred.body);
+    //console.log(cred.body);
     console.log(userCred);
 
     setOpenCredential(true);
@@ -369,7 +376,7 @@ function App() {
             <Input
               type="text"
               label="multiline"
-              multiline rows="5"
+              multiline rows="6"
               variant="outlined"
               placeholder="Description"
               value={info}
@@ -419,8 +426,10 @@ function App() {
             <p className="text__modal">
               {confirmation}
               <br />
-              {data}
+              <p>
+                {data}
               </p>
+            </p>
             <button className="button__modal" type="submit" onClick={() => setOpenShowBlockchain(false)}>Ok</button>
           </div>
         </div>
@@ -454,10 +463,38 @@ function App() {
               <b>Username</b> : {username}
               <br />
               <b>Password</b> : {password}
+
               <br />
-              {confirmation}
-              <br />
-              {userCred}
+              {userCred.publicKey ? (
+                <div>
+                  <p>
+                    {console.log(userCred)}
+                    {userCred.publicKey}
+                  </p>
+                  <br />
+                </div>
+              ) : (
+                <div>
+
+                </div>
+              )
+              }
+              {userCred.privateKey ? (
+                <div>
+                  <p>
+                    {userCred.privateKey}
+                    {console.log(userCred.publicKey)}
+                  </p>
+                  <br />
+                </div>
+              ) : (
+                <div>
+
+                </div>
+              )
+              }
+
+              {/* {userCred} */}
 
             </p>
 

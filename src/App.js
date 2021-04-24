@@ -2,10 +2,17 @@ import './App.css';
 import React, { useState, useEffect } from 'react';
 import logo from './logo.png';
 import icon from './icon.png';
-import { Button, Input } from '@material-ui/core';
+import { Input } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import Modal from '@material-ui/core/Modal';
+import Dialog from '@material-ui/core/Dialog';
+import Divider from '@material-ui/core/Divider';
+import Slide from '@material-ui/core/Slide';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
 import { getDefaultNormalizer } from '@testing-library/dom';
+import ShowFullChain from './ShowFullChain.js';
+import transactionOrientation from './BlockchainIteration.js';
 const fetch = require('node-fetch');
 
 //modal style imported from materialui
@@ -39,6 +46,10 @@ const useStyles = makeStyles((theme) => ({
     display: 'block'
   },
 }));
+
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
 
 
 
@@ -192,12 +203,65 @@ function App() {
 
     let blockchain = await getData('blockchain');
 
-    console.log(blockchain.body);
+    //console.log(blockchain.body);
 
     setConfirmation(blockchain.statusCode);
 
+    //setData(orientBlockchain(blockchain.body));
+    let cntTxn = 0;
+    setData((blockchain.body).map((block) => {
+      
+      cntTxn = 1;
 
-    setData((blockchain.body).map((block) => <p>{JSON.stringify(block, null, "\t")}<br/></p>));
+      return (
+        <div>
+          <h3 className="header__dialog">
+            <button className="block__title">
+              BLOCK {JSON.stringify(block._id)}
+            </button>
+            <br />
+          </h3>
+          <p className="text__dialog">
+            <b> Timestamp : </b> {JSON.stringify(block.timestamp)}<br />
+          </p>
+          <p className="text__dialog">
+            <b> Previous Hash : </b> {JSON.stringify(block.previousHash)}<br />
+          </p>
+          <p className="text__dialog">
+            <b> Limit : </b> {JSON.stringify(block.limit)}<br />
+          </p>
+          <p className="header__dialog">
+            <b> List of Transactions ({block.transactions.length}) : </b>
+          </p>
+          <p className="text__dialog">
+            {
+              block.transactions.map((transaction) =>
+                <div>
+                  <p>
+                    <br/>
+                    <b>Txn. no : {cntTxn++} </b>
+                  </p>
+
+                  <p className="text__dialog">
+                    <i>Id : </i> {JSON.stringify(transaction._id)} <br />
+                    <br />
+                    <i> Details : </i> <br />
+                    {
+                      transactionOrientation(transaction.transaction)
+                    }
+                    {/* Signature : {JSON.stringify(transaction.signature)} */}
+                  </p>
+                </div>
+              )
+            }
+          </p>
+          <br />
+          <Divider /> <br/>
+        </div>
+      )
+    }
+
+    ));
 
     setOpenShowBlockchain(true);
   }
@@ -378,7 +442,7 @@ function App() {
               label="multiline"
               multiline rows="6"
               variant="outlined"
-              placeholder="Description"
+              placeholder="Info"
               value={info}
               onChange={(e) => setInfo(e.target.value)}
             />
@@ -417,23 +481,13 @@ function App() {
 
       {/* modal for show blockchain */}
 
-      <Modal
-        open={openShowBlockchain}
-        onClose={() => setOpenShowBlockchain(false)}
-      >
-        <div style={modalStyle} className={classes.paper}>
-          <div className="app__form">
-            <p className="text__modal">
-              {confirmation}
-              <br />
-              <p>
-                {data}
-              </p>
-            </p>
-            <button className="button__modal" type="submit" onClick={() => setOpenShowBlockchain(false)}>Ok</button>
-          </div>
-        </div>
-      </Modal>
+      <Dialog fullScreen open={openShowBlockchain} onClose={() => setOpenShowBlockchain(false)} TransitionComponent={Transition}>
+        <List>
+          {data}
+        </List>
+        <button className="button__dialog" type="submit" onClick={() => setOpenShowBlockchain(false)}>Close</button>
+      </Dialog>
+
 
       {/* modal for history */}
 
@@ -468,37 +522,30 @@ function App() {
               {userCred.publicKey ? (
                 <div>
                   <p>
-                    {console.log(userCred)}
+                    <b>Publick Key :</b> <br />
                     {userCred.publicKey}
                   </p>
-                  <br />
                 </div>
               ) : (
                 <div>
-
                 </div>
               )
               }
               {userCred.privateKey ? (
                 <div>
                   <p>
+                    <b>Encrypted Private Key :</b> <br />
                     {userCred.privateKey}
-                    {console.log(userCred.publicKey)}
                   </p>
-                  <br />
                 </div>
               ) : (
                 <div>
-
                 </div>
               )
               }
-
-              {/* {userCred} */}
-
             </p>
 
-            <button className="button__modal" type="submit" onClick={() => setOpenCredential(false)}>Ok</button>
+            <button className="button__modal" type="submit" onClick={() => setOpenCredential(false)}>Close</button>
           </div>
         </div>
       </Modal>

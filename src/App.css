@@ -10,8 +10,11 @@
 .app__image {
   width: 33%;
   min-width: 400px; 
-  margin: auto;
-  padding: 30px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: auto;
+  margin-top: auto; 
+  padding: 40px;
 }
 
 .image {
@@ -114,10 +117,12 @@
 }
 
 .button__dialog {
-  width: 10%;
+  width: 55px;
   margin-left: auto;
   margin-right:auto;
-  background-color: transparent;
+  position: fixed;
+  right: 40px;
+  background-color: white;
   border: 2px solid #99A0CC;
   color:#99A0CC;
   padding: 15px;
@@ -125,8 +130,8 @@
   text-decoration: none;
   font-size: 16px;
   border-radius: 30px;
-  margin-top: 25px;
-  margin-bottom: 20px;
+  margin-top: 15px;
+  margin-bottom: 25px;
   transition-duration: 0.5s;
 }
 .button__dialog:hover {

@@ -81,6 +81,7 @@ function App() {
 
   const [openSignUp, setOpenSignUp] = useState(false);
   const [openSignIn, setOpenSignIn] = useState(false);
+  const [openLogOut, setOpenLogOut] = useState(false);
   const [openTransaction, setOpenTransaction] = useState(false);
   const [openShowBlockchain, setOpenShowBlockchain] = useState(false);
   const [openHistory, setOpenHistory] = useState(false);
@@ -172,6 +173,7 @@ function App() {
     event.preventDefault();
 
     setUser(null);
+    setOpenLogOut(false);
   }
 
   const transaction = (event) => {
@@ -365,7 +367,7 @@ function App() {
             {confirmation === 200
               ? <div className="app__form">
                 <p className="text__modal">
-                  You're signed up! {confirmation}
+                  You're signed up!
                 </p>
                 <button className="button__modal" type="submit" onClick={signUp}>Great!</button>
               </div>
@@ -394,7 +396,6 @@ function App() {
               ? <div className="app__form">
                 <p className="text__modal">
                   You're logged in!
-
                 </p>
                 <button className="button__modal" type="submit" onClick={signIn}>Great!</button>
               </div>
@@ -485,7 +486,7 @@ function App() {
         <List>
           {data}
         </List>
-        <button className="button__dialog" type="submit" onClick={() => setOpenShowBlockchain(false)}>Close</button>
+        <button className="button__dialog" type="submit" onClick={() => setOpenShowBlockchain(false)}>X</button>
       </Dialog>
 
 
@@ -522,7 +523,7 @@ function App() {
               {userCred.publicKey ? (
                 <div>
                   <p>
-                    <b>Publick Key :</b> <br />
+                    <b>Public Key :</b> <br />
                     {userCred.publicKey}
                   </p>
                 </div>
@@ -546,6 +547,22 @@ function App() {
             </p>
 
             <button className="button__modal" type="submit" onClick={() => setOpenCredential(false)}>Close</button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* modal for log out confirmation */}
+
+      <Modal
+        open={openLogOut}
+        onClose={() => setOpenLogOut(false)}
+      >
+        <div style={modalStyle} className={classes.paper}>
+          <div className="app__form">
+                <p className="text__modal">
+                  You're logged out!
+                </p>
+                <button className="button__modal" type="submit" onClick={logOut}>Great!</button>
           </div>
         </div>
       </Modal>
@@ -578,7 +595,7 @@ function App() {
             User Credentials
           </button>
 
-          <button className="logout__button" onClick={logOut}>
+          <button className="logout__button" onClick={() => setOpenLogOut(true)}>
             Log Out
           </button>
         </div>

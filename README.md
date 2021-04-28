@@ -1,4 +1,4 @@
-# Personal-Blockchian-Backend
+# Personal-Blockchian-Frontend
 This is the frontend portion of an academic project, Personal Blockchain, made with ReactJS.
 
 
